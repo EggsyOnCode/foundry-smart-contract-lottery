@@ -5,7 +5,7 @@ import {Script} from "forge-std/Script.sol";
 import {Raffle} from "../src/Raffle.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 contract DeployRaffle is Script{
-    function run() external returns (Raffle) {
+    function run() external returns (Raffle, HelperConfig) {
         HelperConfig helperConfig = new HelperConfig();
         (
         uint64 subscriptionId,
@@ -26,6 +26,6 @@ contract DeployRaffle is Script{
          gasLane
         );
         vm.stopBroadcast();
-        return (raffle);
+        return (raffle, helperConfig);
     }
 }

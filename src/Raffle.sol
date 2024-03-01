@@ -165,4 +165,10 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit RequestedRaffleWinner(requestId);
     }
 
+    /**Getters and Setters**/
+
+    function getRaffleState() external view returns(RaffleState)
+    {
+        return s_raffleState;
+    }
 }
