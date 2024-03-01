@@ -38,6 +38,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         OPEN,
         CALCULATING
     }
+
     VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
     uint32 private immutable i_callbackGasLimit;
@@ -56,16 +57,16 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
     error InsufficientDeposits();
     error WinnerFundsAllotmentError();
     error Revert_StateNotOpen();
-    error Raffle__UpkeepNotNeeded(uint256 contractBalance, uint256 arryLength,uint256 rfStateNum);
+    error Raffle__UpkeepNotNeeded(uint256 contractBalance, uint256 arryLength, uint256 rfStateNum);
 
     /**
      * EVents*
      */
-
     event PlayerAdded(address indexed playerAddrses);
     event PickedWinner(address indexed winnerAddress);
     event RequestedRaffleWinner(uint256 requestId);
     //structs
+
     struct Player {
         string name;
         address _senderAddress;
@@ -98,7 +99,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         if (msg.value <= i_entranceFee) {
             revert InsufficientDeposits();
         }
-        if(s_raffleState != RaffleState.OPEN){
+        if (s_raffleState != RaffleState.OPEN) {
             revert Revert_StateNotOpen();
         }
         s_players.push(payable(msg.sender));
@@ -106,8 +107,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
         emit PlayerAdded(msg.sender);
     }
 
-
-    function fulfillRandomWords(uint256 /*_requestId*/, uint256[] memory _randomWords) internal override {
+    function fulfillRandomWords(uint256, /*_requestId*/ uint256[] memory _randomWords) internal override {
         uint256 indexOfWinner = _randomWords[0] % s_players.length;
         address payable winnerAddress = s_players[indexOfWinner];
         (bool suc,) = winnerAddress.call{value: address(this).balance}("");
@@ -129,46 +129,45 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatibleInterface {
      * for the cahange to be made ; following need to be true
      * 1- the time interbal between the raffle runs need to have passed
      * 2- the raffle state should be open
-     * 3- the contract shou.d have some balance 
+     * 3- the contract shou.d have some balance
      * 4- the contract need to have depositd some LINk in the Chianlink Automation
      * --- performing the role of picking A winner
      */
-    function checkUpkeep(bytes memory /*checkData*/) public view
-    returns (bool upkeepNeeded, bytes memory /*performData*/) {
-        bool timePassed = (block.timestamp - s_localTimestamp) < i_interval ;
+
+    function checkUpkeep(bytes memory /*checkData*/ )
+        public
+        view
+        returns (bool upkeepNeeded, bytes memory /*performData*/ )
+    {
+        bool timePassed = (block.timestamp - s_localTimestamp) < i_interval;
         bool isOpen = s_raffleState == RaffleState.OPEN;
         bool hasEth = address(this).balance > 0;
         bool hasPlayers = s_players.length > 0;
         bool upkeep = (timePassed && isOpen && hasEth && hasPlayers);
-        return(upkeep, "0x0");
+        return (upkeep, "0x0");
     }
 
-    function performUpkeep(bytes calldata /* performData */) external override {
-        (bool upkeepNeeded, ) = checkUpkeep("");
+    function performUpkeep(bytes calldata /* performData */ ) external override {
+        (bool upkeepNeeded,) = checkUpkeep("");
         // require(upkeepNeeded, "Upkeep not needed");
         if (!upkeepNeeded) {
-            revert Raffle__UpkeepNotNeeded(
-                address(this).balance,
-                s_players.length,
-                uint256(s_raffleState)
-            );
+            revert Raffle__UpkeepNotNeeded(address(this).balance, s_players.length, uint256(s_raffleState));
         }
         s_raffleState = RaffleState.CALCULATING;
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
-            i_gasLane,
-            s_subscriptionId,
-            REQUEST_CONFIRMATIONS,
-            i_callbackGasLimit,
-            NUM_WORDS
+            i_gasLane, s_subscriptionId, REQUEST_CONFIRMATIONS, i_callbackGasLimit, NUM_WORDS
         );
         // Quiz... is this redundant?
         emit RequestedRaffleWinner(requestId);
     }
 
-    /**Getters and Setters**/
-
-    function getRaffleState() external view returns(RaffleState)
-    {
+    /**
+     * Getters and Setters*
+     */
+    function getRaffleState() external view returns (RaffleState) {
         return s_raffleState;
+    }
+    function getPlayer(uint id) external view returns (address) {
+        return s_players[id];
     }
 }

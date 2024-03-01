@@ -41,7 +41,7 @@ contract HelperConfig is Script {
             subscriptionId: 0, // If left as 0, our scripts will create one!
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             automationUpdateInterval: 30, // 30 seconds
-            raffleEntranceFee: 0.01 ether,
+            raffleEntranceFee: 0.10 ether,
             callbackGasLimit: 500000, // 500,000 gas
             vrfCoordinatorV2: 0x8103B0A8A00be2DDC778e6e7eaa21791Cd364625
         });
@@ -69,7 +69,7 @@ contract HelperConfig is Script {
             subscriptionId: 0, // If left as 0, our scripts will create one!
             gasLane: 0x474e34a077df58807dbe9c96d3c009b23b3c6d0cce433e59bbf5b34f823bc56c,
             automationUpdateInterval: 30, // 30 seconds
-            raffleEntranceFee: 0.01 ether,
+            raffleEntranceFee: 0.10 ether,
             callbackGasLimit: 500000, // 500,000 gas
             vrfCoordinatorV2: address(vrfCoordinatorMock)
             })
